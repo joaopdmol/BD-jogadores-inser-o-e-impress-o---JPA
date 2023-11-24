@@ -1,0 +1,71 @@
+package seuGrupo.seuProjeto;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // Configuração da SessionFactory do Hibernate
+        SessionFactory sessionFactory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Jogador.class)
+                .buildSessionFactory();
+
+        // Criando jogador 1
+        Jogador jogador1 = new Jogador();
+        jogador1.setNome("Jogador 1");
+        jogador1.setFuncao("Atirador");
+        jogador1.setNomeTime("Time A");
+        jogador1.setPatente("Mestre");
+
+        // Criando jogador 2 e 3 (para exemplificar)
+        Jogador jogador2 = new Jogador();
+        jogador2.setNome("Jogador 2");
+        jogador2.setFuncao("Suporte");
+        jogador2.setNomeTime("Time B");
+        jogador2.setPatente("Diamante");
+
+        Jogador jogador3 = new Jogador();
+        jogador3.setNome("Jogador 3");
+        jogador3.setFuncao("Topo");
+        jogador3.setNomeTime("Time C");
+        jogador3.setPatente("Ouro");
+
+        // Salvando os jogadores no banco de dados
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+
+            session.save(jogador1);
+            session.save(jogador2);
+            session.save(jogador3);
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Recuperando os jogadores do banco de dados
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+
+            List<Jogador> jogadores = session.createQuery("FROM Jogador", Jogador.class).getResultList();
+
+            for (Jogador jogador : jogadores) {
+                System.out.println("Nome: " + jogador.getNome());
+                System.out.println("Função: " + jogador.getFuncao());
+                System.out.println("Time: " + jogador.getNomeTime());
+                System.out.println("Patente: " + jogador.getPatente());
+                System.out.println();
+            }
+
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            sessionFactory.close();
+        }
+    }
+}
